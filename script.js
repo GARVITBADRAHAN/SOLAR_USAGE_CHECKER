@@ -156,17 +156,27 @@ function handleBooking(event) {
     additionalInfo
   };
 
-  // Log the booking data and store it in localStorage so it persists across tabs.
-  console.log("Booking Data Submitted:", bookingData);
-  localStorage.setItem("bookingData", JSON.stringify(bookingData));
-
-  // Display a confirmation message
-  const confirmationDiv = document.getElementById("bookingConfirmation");
-  confirmationDiv.style.display = "block";
-  confirmationDiv.innerHTML = `<p>Thank you, ${fullName}! Your appointment has been booked for ${appointmentDate} at ${appointmentTime}. Our supplier will contact you shortly at ${email} or ${phone}.</p>`;
-  
-  // Optionally, reset the form
-  document.getElementById("bookingForm").reset();
+  // Send the booking data to the Node.js server via POST request.
+  // Update the URL if your backend is deployed elsewhere.
+  fetch('http://localhost:5000/api/bookings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bookingData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Booking Data Submitted:", data);
+    // Display a confirmation message
+    const confirmationDiv = document.getElementById("bookingConfirmation");
+    confirmationDiv.style.display = "block";
+    confirmationDiv.innerHTML = `<p>Thank you, ${fullName}! Your appointment has been booked successfully. Booking ID: ${data.booking._id}</p>`;
+    // Reset the form
+    document.getElementById("bookingForm").reset();
+  })
+  .catch(error => {
+    console.error("Error submitting booking:", error);
+    alert("There was an error submitting your booking.");
+  });
 }
 
 function goBackToResults() {
